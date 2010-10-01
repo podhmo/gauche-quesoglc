@@ -1,0 +1,8 @@
+;; -*-Scheme-*-
+;; Gauche Package Description
+
+(define-gauche-package "gauche-quesoglc"
+  :version "1.0"
+  :gauche-version "0.9"
+  :configure "./configure "
+)

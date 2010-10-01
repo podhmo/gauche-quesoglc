@@ -1,0 +1,225 @@
+;;;
+;;; gauche_quesoglclib.stub
+;;;
+
+"
+#include \"gauche_quesoglc.h\"
+#include <GL/glc.h>
+"
+
+(define-constant GLC_NONE                                  #x0000)
+
+(define-constant GLC_AUTO_FONT                             #x0010)
+(define-constant GLC_GL_OBJECTS                            #x0011)
+(define-constant GLC_MIPMAP                                #x0012)
+
+(define-constant GLC_OP_glcUnmappedCode                    #x0020)
+
+(define-constant GLC_BASELINE                              #x0030)
+(define-constant GLC_BOUNDS                                #x0031)
+
+(define-constant GLC_PARAMETER_ERROR                       #x0040)
+(define-constant GLC_RESOURCE_ERROR                        #x0041)
+(define-constant GLC_STATE_ERROR                           #x0042)
+
+(define-constant GLC_CHAR_LIST                             #x0050)
+(define-constant GLC_FACE_LIST                             #x0051)
+
+(define-constant GLC_FAMILY                                #x0060)
+(define-constant GLC_MASTER_FORMAT                         #x0061)
+(define-constant GLC_VENDOR                                #x0062)
+(define-constant GLC_VERSION                               #x0063)
+
+(define-constant GLC_CHAR_COUNT                            #x0070)
+(define-constant GLC_FACE_COUNT                            #x0071)
+(define-constant GLC_IS_FIXED_PITCH                        #x0072)
+(define-constant GLC_MAX_MAPPED_CODE                       #x0073)
+(define-constant GLC_MIN_MAPPED_CODE                       #x0074)
+(define-constant GLC_IS_OUTLINE                            #x0075)
+
+(define-constant GLC_CATALOG_LIST                          #x0080)
+
+(define-constant GLC_CURRENT_FONT_LIST                     #x0090)
+(define-constant GLC_FONT_LIST                             #x0091)
+(define-constant GLC_LIST_OBJECT_LIST                      #x0092)
+(define-constant GLC_TEXTURE_OBJECT_LIST                   #x0093)
+
+(define-constant GLC_DATA_POINTER                          #x00A0)
+
+(define-constant GLC_EXTENSIONS                            #x00B0)
+(define-constant GLC_RELEASE                               #x00B1)
+
+(define-constant GLC_RESOLUTION                            #x00C0)
+
+(define-constant GLC_BITMAP_MATRIX                         #x00D0)
+
+(define-constant GLC_CATALOG_COUNT                         #x00E0)
+(define-constant GLC_CURRENT_FONT_COUNT                    #x00E1)
+(define-constant GLC_FONT_COUNT                            #x00E2)
+(define-constant GLC_LIST_OBJECT_COUNT                     #x00E3)
+(define-constant GLC_MASTER_COUNT                          #x00E4)
+(define-constant GLC_MEASURED_CHAR_COUNT                   #x00E5)
+(define-constant GLC_RENDER_STYLE                          #x00E6)
+(define-constant GLC_REPLACEMENT_CODE                      #x00E7)
+(define-constant GLC_STRING_TYPE                           #x00E8)
+(define-constant GLC_TEXTURE_OBJECT_COUNT                  #x00E9)
+(define-constant GLC_VERSION_MAJOR                         #x00EA)
+(define-constant GLC_VERSION_MINOR                         #x00EB)
+
+(define-constant GLC_BITMAP                                #x0100)
+(define-constant GLC_LINE                                  #x0101)
+(define-constant GLC_TEXTURE                               #x0102)
+(define-constant GLC_TRIANGLE                              #x0103)
+
+(define-constant GLC_UCS1                                  #x0110)
+(define-constant GLC_UCS2                                  #x0111)
+(define-constant GLC_UCS4                                  #x0112)
+
+
+;;;
+(define-cproc glc-context (in-context::<fixnum>) ::<void>
+  (glcContext (cast GLint in-context)))
+;; GLCAPI void APIENTRY glcDeleteContext (GLint inContext);
+(define-cproc glc-gen-context () ::<fixnum>
+  (result (cast int (glcGenContext))))
+
+;; GLCAPI GLint* APIENTRY glcGetAllContexts (void);
+;; GLCAPI GLint APIENTRY glcGetCurrentContext (void);
+;; GLCAPI GLCenum APIENTRY glcGetError (void);
+;; GLCAPI GLboolean APIENTRY glcIsContext (GLint inContext);
+
+;; GLCAPI void APIENTRY glcCallbackFunc (GLCenum inOpcode, GLCfunc inFunc);
+;; GLCAPI void APIENTRY glcDataPointer (GLvoid *inPointer);
+;; GLCAPI void APIENTRY glcDeleteGLObjects (void);
+;; GLCAPI void APIENTRY glcDisable (GLCenum inAttrib);
+;; GLCAPI void APIENTRY glcEnable (GLCenum inAttrib);
+;; GLCAPI GLCfunc APIENTRY glcGetCallbackFunc (GLCenum inOpcode);
+;; GLCAPI const GLCchar* APIENTRY glcGetListc (GLCenum inAttrib, GLint inIndex);
+;; GLCAPI GLint APIENTRY glcGetListi (GLCenum inAttrib, GLint inIndex);
+;; GLCAPI GLvoid* APIENTRY glcGetPointer (GLCenum inAttrib);
+;; GLCAPI const GLCchar* APIENTRY glcGetc (GLCenum inAttrib);
+;; GLCAPI GLfloat APIENTRY glcGetf (GLCenum inAttrib);
+;; GLCAPI GLfloat* APIENTRY glcGetfv (GLCenum inAttrib, GLfloat *outVec);
+;; GLCAPI GLint APIENTRY glcGeti (GLCenum inAttrib);
+;; GLCAPI GLboolean APIENTRY glcIsEnabled (GLCenum inAttrib);
+;; GLCAPI void APIENTRY glcStringType (GLCenum inStringType);
+
+(define-cproc glc-append-catalog (in-catalog::<string>) ::<void>
+  (glcAppendCatalog (cast GLCchar* (Scm_GetStringConst in-catalog))))
+;; GLCAPI const GLCchar* APIENTRY glcGetMasterListc (GLint inMaster,
+;; 						  GLCenum inAttrib,
+;; 						  GLint inIndex);
+;; GLCAPI const GLCchar* APIENTRY glcGetMasterMap (GLint inMaster, GLint inCode);
+;; GLCAPI const GLCchar* APIENTRY glcGetMasterc (GLint inMaster, GLCenum inAttrib);
+;; GLCAPI GLint APIENTRY glcGetMasteri (GLint inMaster, GLCenum inAttrib);
+;; GLCAPI void APIENTRY glcPrependCatalog (const GLCchar *inCatalog);
+;; GLCAPI void APIENTRY glcRemoveCatalog (GLint inIndex);
+
+;; GLCAPI void APIENTRY glcAppendFont (GLint inFont);
+;; GLCAPI void APIENTRY glcDeleteFont (GLint inFont);
+;; GLCAPI void APIENTRY glcFont (GLint inFont);
+;; GLCAPI GLboolean APIENTRY glcFontFace (GLint inFont, const GLCchar *inFace);
+;; GLCAPI void APIENTRY glcFontMap (GLint inFont, GLint inCode,
+;; 				 const GLCchar *inCharName);
+;; GLCAPI GLint APIENTRY glcGenFontID (void);
+;; GLCAPI const GLCchar* APIENTRY glcGetFontFace (GLint inFont);
+;; GLCAPI const GLCchar* APIENTRY glcGetFontListc (GLint inFont,
+;; 						GLCenum inAttrib,
+;; 						GLint inIndex);
+;; GLCAPI const GLCchar* APIENTRY glcGetFontMap (GLint inFont, GLint inCode);
+;; GLCAPI const GLbyte* APIENTRY glcGetFontMasterArray (GLint inFont,
+;; 						     GLboolean inFull,
+;; 						     GLint *outCount);
+;; GLCAPI const GLCchar* APIENTRY glcGetFontc (GLint inFont, GLCenum inAttrib);
+;; GLCAPI GLint APIENTRY glcGetFonti (GLint inFont, GLCenum inAttrib);
+;; GLCAPI GLboolean APIENTRY glcIsFont (GLint inFont);
+;; GLCAPI GLint APIENTRY glcNewFontFromFamily (GLint inFont,
+;; 					    const GLCchar *inFamily);
+;; GLCAPI GLint APIENTRY glcNewFontFromMaster (GLint inFont, GLint inMaster);
+
+;; GLCAPI void APIENTRY glcLoadIdentity (void);
+;; GLCAPI void APIENTRY glcLoadMatrix (const GLfloat *inMatrix);
+;; GLCAPI void APIENTRY glcMultMatrix (const GLfloat *inMatrix);
+;; GLCAPI void APIENTRY glcRotate (GLfloat inAngle);
+;; GLCAPI void APIENTRY glcScale (GLfloat inX, GLfloat inY);
+
+;; GLCAPI void APIENTRY glcRenderChar (GLint inCode);
+;; GLCAPI void APIENTRY glcRenderCountedString (GLint inCount,
+;; 					     const GLCchar *inString);
+;; GLCAPI void APIENTRY glcRenderString (const GLCchar *inString);
+;; GLCAPI void APIENTRY glcRenderStyle (GLCenum inStyle);
+;; GLCAPI void APIENTRY glcReplacementCode (GLint inCode);
+;; GLCAPI void APIENTRY glcResolution (GLfloat inVal);
+
+;; GLCAPI GLfloat* APIENTRY glcGetCharMetric (GLint inCode, GLCenum inMetric,
+;; 					   GLfloat *outVec);
+;; GLCAPI GLfloat* APIENTRY glcGetMaxCharMetric (GLCenum inMetric,
+;; 					      GLfloat *outVec);
+;; GLCAPI GLfloat* APIENTRY glcGetStringCharMetric (GLint inIndex,
+;; 						 GLCenum inMetric,
+;; 						 GLfloat *outVec);
+;; GLCAPI GLfloat* APIENTRY glcGetStringMetric (GLCenum inMetric, GLfloat *outVec);
+;; GLCAPI GLint APIENTRY glcMeasureCountedString (GLboolean inMeasureChars,
+;; 					       GLint inCount,
+;; 					       const GLCchar *inString);
+;; GLCAPI GLint APIENTRY glcMeasureString (GLboolean inMeasureChars,
+;; 					const GLCchar *inString);
+
+;; /*************************************************************/
+
+(define-constant GLC_SGI_ufm_typeface_handle               1)
+(define-constant GLC_UFM_TYPEFACE_HANDLE_SGI               0x8001)
+(define-constant GLC_UFM_TYPEFACE_HANDLE_COUNT_SGI         0x8003)
+;; GLCAPI GLint APIENTRY glcGetMasterListiSGI(GLint inMaster, GLCenum inAttrib,
+;; 					   GLint inIndex);
+;; GLCAPI GLint APIENTRY glcGetFontListiSGI(GLint inFont, GLCenum inAttrib,
+;; 					 GLint inIndex);
+
+(define-constant GLC_SGI_full_name                         1)
+(define-constant GLC_FULL_NAME_SGI                         0x8002)
+
+(define-constant GLC_QSO_utf8                              1)
+(define-constant GLC_UTF8_QSO                              0x8004)
+
+(define-constant GLC_QSO_hinting                           1)
+(define-constant GLC_HINTING_QSO                           0x8005)
+
+(define-constant GLC_QSO_extrude                           1)
+(define-constant GLC_EXTRUDE_QSO                           0x8006)
+
+(define-constant GLC_QSO_kerning                           1)
+(define-constant GLC_KERNING_QSO                           0x8007)
+
+(define-constant GLC_QSO_matrix_stack                      1)
+(define-constant GLC_MATRIX_STACK_DEPTH_QSO                0x8008)
+(define-constant GLC_MAX_MATRIX_STACK_DEPTH_QSO            0x8009)
+(define-constant GLC_STACK_OVERFLOW_QSO                    0x800A)
+(define-constant GLC_STACK_UNDERFLOW_QSO                   0x800B)
+;; GLCAPI void APIENTRY glcPushMatrixQSO(void);
+;; GLCAPI void APIENTRY glcPopMatrixQSO(void);
+
+(define-constant GLC_QSO_attrib_stack                      1)
+(define-constant GLC_ENABLE_BIT_QSO                        0x00000001)
+(define-constant GLC_RENDER_BIT_QSO                        0x00000002)
+(define-constant GLC_STRING_BIT_QSO                        0x00000004)
+(define-constant GLC_GL_ATTRIB_BIT_QSO                     0x00000008)
+(define-constant GLC_ALL_ATTRIB_BITS_QSO                   0x0000FFFF)
+(define-constant GLC_ATTRIB_STACK_DEPTH_QSO                0x800C)
+(define-constant GLC_MAX_ATTRIB_STACK_DEPTH_QSO            0x800D)
+;; GLCAPI void APIENTRY glcPushAttribQSO(GLbitfield inMask);
+;; GLCAPI void APIENTRY glcPopAttribQSO(void);
+
+(define-constant GLC_QSO_buffer_object                     1)
+(define-constant GLC_BUFFER_OBJECT_COUNT_QSO               0x800E)
+(define-constant GLC_BUFFER_OBJECT_LIST_QSO                0x800F)
+
+;; The following entry is a dummy one.
+;; Replace it for your definitions.
+
+(define-cproc test-gauche_quesoglc () ::<const-cstring>
+  (result "gauche_quesoglc is working"))
+
+
+;; Local variables:
+;; mode: scheme
+;; end:

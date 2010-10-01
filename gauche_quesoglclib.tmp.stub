@@ -1,0 +1,3 @@
+;; GLCAPI void APIENTRY glcContext (GLint inContext);
+;; GLCAPI void APIENTRY glcAppendCatalog (const GLCchar *inCatalog);
+;; GLCAPI GLint APIENTRY glcGenContext (void);
