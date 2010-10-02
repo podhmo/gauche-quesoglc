@@ -256,6 +256,9 @@
   (glcRenderString (cast (const GLCchar*) (Scm_GetStringConst instr))))
 
 ;; GLCAPI void APIENTRY glcRenderStyle (GLCenum inStyle);
+(define-cproc glc-render-style (instyle::<int>) ::<void>
+  (glcRenderStyle (cast GLCenum instyle)))
+  
 ;; GLCAPI void APIENTRY glcReplacementCode (GLint inCode);
 ;; GLCAPI void APIENTRY glcResolution (GLfloat inVal);
 
