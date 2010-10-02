@@ -14,12 +14,18 @@
        (test-gauche_quesoglc))
 
 
-(glc-context (glc-gen-context))
+(define ctx (glc-gen-context))
+(glc-context ctx)
 (glc-append-catalog "/etc/X11/fonts/Type1/")
+(glc-append-catalog "/usr/share/fonts/X11/Type1/")
+(define myfont (glc-gen-font-id))
+#?=(glc-new-font-from-family myfont "gsfonts-x11")
+#?=(glc-catalog-list)
+#?=(glc-font-face myfont "bold")
+(glc-font myfont)
+(glc-scale 100 100)
+
+(glc-render-string "hello world")
 ;; epilogue
 (test-end)
-
-
-
-
 

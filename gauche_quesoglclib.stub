@@ -7,6 +7,24 @@
 #include <GL/glc.h>
 "
 
+(define-cise-stmt RESULT_NEW_LIST
+  [(_ "base" i size loop-body)
+   `(let* ((__start::ScmObj SCM_NIL)
+           (__last::ScmObj SCM_NIL)
+           (__size::int ,size))
+      (dotimes (,i __size)
+        ,loop-body)
+      (result __start))]
+  [(_ :index i :size size ('let* binding . body))
+   `(RESULT_NEW_LIST "base" ,i ,size
+                    (let* ,(append binding
+                                   `((__e::ScmObj (begin ,@body))))
+                      (SCM_APPEND1 __start __last __e)))]
+  [(_ :index i :size size element_fun)
+   `(RESULT_NEW_LIST "base" ,i ,size
+                     (let* ((__e::ScmObj ,element_fun))
+                       (SCM_APPEND1 __start __last __e)))])
+
 (define-constant GLC_NONE                                  #x0000)
 
 (define-constant GLC_AUTO_FONT                             #x0010)
@@ -91,8 +109,10 @@
 ;; GLCAPI void APIENTRY glcCallbackFunc (GLCenum inOpcode, GLCfunc inFunc);
 ;; GLCAPI void APIENTRY glcDataPointer (GLvoid *inPointer);
 ;; GLCAPI void APIENTRY glcDeleteGLObjects (void);
-;; GLCAPI void APIENTRY glcDisable (GLCenum inAttrib);
-;; GLCAPI void APIENTRY glcEnable (GLCenum inAttrib);
+(define-cproc glc-enable (inAttrib::<int>) ::<void>
+  (glcEnable (cast GLCenum inAttrib)))
+(define-cproc glc-disable (inAttrib::<int>) ::<void>
+  (glcDisable (cast GLCenum inAttrib)))
 ;; GLCAPI GLCfunc APIENTRY glcGetCallbackFunc (GLCenum inOpcode);
 ;; GLCAPI const GLCchar* APIENTRY glcGetListc (GLCenum inAttrib, GLint inIndex);
 ;; GLCAPI GLint APIENTRY glcGetListi (GLCenum inAttrib, GLint inIndex);
@@ -103,7 +123,8 @@
 ;; GLCAPI GLint APIENTRY glcGeti (GLCenum inAttrib);
 ;; GLCAPI GLboolean APIENTRY glcIsEnabled (GLCenum inAttrib);
 ;; GLCAPI void APIENTRY glcStringType (GLCenum inStringType);
-
+(define-cproc glc-string-type (inStringType::<int>) ::<void>
+  (glcStringType (cast GLCenum inStringType)))
 (define-cproc glc-append-catalog (in-catalog::<string>) ::<void>
   (glcAppendCatalog (cast GLCchar* (Scm_GetStringConst in-catalog))))
 ;; GLCAPI const GLCchar* APIENTRY glcGetMasterListc (GLint inMaster,
@@ -117,11 +138,20 @@
 
 ;; GLCAPI void APIENTRY glcAppendFont (GLint inFont);
 ;; GLCAPI void APIENTRY glcDeleteFont (GLint inFont);
-;; GLCAPI void APIENTRY glcFont (GLint inFont);
-;; GLCAPI GLboolean APIENTRY glcFontFace (GLint inFont, const GLCchar *inFace);
+
+(define-cproc glc-font (inFont::<int>) ::<void>
+  (glcFont (cast GLint inFont)))
+
+(define-cproc glc-font-face (inFont::<fixnum> inFace::<string>)
+  (let* ((cstr::(const GLCchar*) (cast (const GLCchar*) (Scm_GetStringConst inFace))))
+    (if (== GL_TRUE (glcFontFace inFont cstr))
+        (result SCM_UNDEFINED)
+        (result SCM_FALSE))))
+  
 ;; GLCAPI void APIENTRY glcFontMap (GLint inFont, GLint inCode,
 ;; 				 const GLCchar *inCharName);
-;; GLCAPI GLint APIENTRY glcGenFontID (void);
+(define-cproc glc-gen-font-id () ::<int>
+  (result (cast int (glcGenFontID))))
 ;; GLCAPI const GLCchar* APIENTRY glcGetFontFace (GLint inFont);
 ;; GLCAPI const GLCchar* APIENTRY glcGetFontListc (GLint inFont,
 ;; 						GLCenum inAttrib,
@@ -133,20 +163,32 @@
 ;; GLCAPI const GLCchar* APIENTRY glcGetFontc (GLint inFont, GLCenum inAttrib);
 ;; GLCAPI GLint APIENTRY glcGetFonti (GLint inFont, GLCenum inAttrib);
 ;; GLCAPI GLboolean APIENTRY glcIsFont (GLint inFont);
-;; GLCAPI GLint APIENTRY glcNewFontFromFamily (GLint inFont,
-;; 					    const GLCchar *inFamily);
+
+(define-cproc glc-new-font-from-family (inFont::<fixnum> inFamily::<string>) ::<int>
+  (let* ((cstr::(const GLCchar*)  (cast (const GLCchar*) (Scm_GetString inFamily))))
+    (result (cast int (glcNewFontFromFamily (cast GLint inFont) cstr)))))
+
+(define-cproc glc-catalog-list ()
+  (RESULT_NEW_LIST :index i
+                   :size (cast int (glcGeti GLC_CATALOG_COUNT))
+                   (let* ((cstr::(const char*) (cast (const char*) (glcGetListc GLC_CATALOG_LIST i))))
+                     (Scm_MakeString cstr -1 -1 SCM_STRING_COPYING))))
+
 ;; GLCAPI GLint APIENTRY glcNewFontFromMaster (GLint inFont, GLint inMaster);
 
 ;; GLCAPI void APIENTRY glcLoadIdentity (void);
 ;; GLCAPI void APIENTRY glcLoadMatrix (const GLfloat *inMatrix);
 ;; GLCAPI void APIENTRY glcMultMatrix (const GLfloat *inMatrix);
 ;; GLCAPI void APIENTRY glcRotate (GLfloat inAngle);
-;; GLCAPI void APIENTRY glcScale (GLfloat inX, GLfloat inY);
 
+(define-cproc glc-scale (inX::<float> inY::<float>) ::<void>
+  (glcScale (cast GLfloat inX) (cast GLfloat inY)))
 ;; GLCAPI void APIENTRY glcRenderChar (GLint inCode);
 ;; GLCAPI void APIENTRY glcRenderCountedString (GLint inCount,
 ;; 					     const GLCchar *inString);
-;; GLCAPI void APIENTRY glcRenderString (const GLCchar *inString);
+
+(define-cproc glc-render-string (instr::<string>) ::<void>
+  (glcRenderString (cast (const GLCchar*) (Scm_GetStringConst instr))))
 ;; GLCAPI void APIENTRY glcRenderStyle (GLCenum inStyle);
 ;; GLCAPI void APIENTRY glcReplacementCode (GLint inCode);
 ;; GLCAPI void APIENTRY glcResolution (GLfloat inVal);
@@ -168,50 +210,50 @@
 ;; /*************************************************************/
 
 (define-constant GLC_SGI_ufm_typeface_handle               1)
-(define-constant GLC_UFM_TYPEFACE_HANDLE_SGI               0x8001)
-(define-constant GLC_UFM_TYPEFACE_HANDLE_COUNT_SGI         0x8003)
+(define-constant GLC_UFM_TYPEFACE_HANDLE_SGI               #x8001)
+(define-constant GLC_UFM_TYPEFACE_HANDLE_COUNT_SGI         #x8003)
 ;; GLCAPI GLint APIENTRY glcGetMasterListiSGI(GLint inMaster, GLCenum inAttrib,
 ;; 					   GLint inIndex);
 ;; GLCAPI GLint APIENTRY glcGetFontListiSGI(GLint inFont, GLCenum inAttrib,
 ;; 					 GLint inIndex);
 
 (define-constant GLC_SGI_full_name                         1)
-(define-constant GLC_FULL_NAME_SGI                         0x8002)
+(define-constant GLC_FULL_NAME_SGI                         #x8002)
 
 (define-constant GLC_QSO_utf8                              1)
-(define-constant GLC_UTF8_QSO                              0x8004)
+(define-constant GLC_UTF8_QSO                              #x8004)
 
 (define-constant GLC_QSO_hinting                           1)
-(define-constant GLC_HINTING_QSO                           0x8005)
+(define-constant GLC_HINTING_QSO                           #x8005)
 
 (define-constant GLC_QSO_extrude                           1)
-(define-constant GLC_EXTRUDE_QSO                           0x8006)
+(define-constant GLC_EXTRUDE_QSO                           #x8006)
 
 (define-constant GLC_QSO_kerning                           1)
-(define-constant GLC_KERNING_QSO                           0x8007)
+(define-constant GLC_KERNING_QSO                           #x8007)
 
 (define-constant GLC_QSO_matrix_stack                      1)
-(define-constant GLC_MATRIX_STACK_DEPTH_QSO                0x8008)
-(define-constant GLC_MAX_MATRIX_STACK_DEPTH_QSO            0x8009)
-(define-constant GLC_STACK_OVERFLOW_QSO                    0x800A)
-(define-constant GLC_STACK_UNDERFLOW_QSO                   0x800B)
+(define-constant GLC_MATRIX_STACK_DEPTH_QSO                #x8008)
+(define-constant GLC_MAX_MATRIX_STACK_DEPTH_QSO            #x8009)
+(define-constant GLC_STACK_OVERFLOW_QSO                    #x800A)
+(define-constant GLC_STACK_UNDERFLOW_QSO                   #x800B)
 ;; GLCAPI void APIENTRY glcPushMatrixQSO(void);
 ;; GLCAPI void APIENTRY glcPopMatrixQSO(void);
 
 (define-constant GLC_QSO_attrib_stack                      1)
-(define-constant GLC_ENABLE_BIT_QSO                        0x00000001)
-(define-constant GLC_RENDER_BIT_QSO                        0x00000002)
-(define-constant GLC_STRING_BIT_QSO                        0x00000004)
-(define-constant GLC_GL_ATTRIB_BIT_QSO                     0x00000008)
-(define-constant GLC_ALL_ATTRIB_BITS_QSO                   0x0000FFFF)
-(define-constant GLC_ATTRIB_STACK_DEPTH_QSO                0x800C)
-(define-constant GLC_MAX_ATTRIB_STACK_DEPTH_QSO            0x800D)
+(define-constant GLC_ENABLE_BIT_QSO                        #x00000001)
+(define-constant GLC_RENDER_BIT_QSO                        #x00000002)
+(define-constant GLC_STRING_BIT_QSO                        #x00000004)
+(define-constant GLC_GL_ATTRIB_BIT_QSO                     #x00000008)
+(define-constant GLC_ALL_ATTRIB_BITS_QSO                   #x0000FFFF)
+(define-constant GLC_ATTRIB_STACK_DEPTH_QSO                #x800C)
+(define-constant GLC_MAX_ATTRIB_STACK_DEPTH_QSO            #x800D)
 ;; GLCAPI void APIENTRY glcPushAttribQSO(GLbitfield inMask);
 ;; GLCAPI void APIENTRY glcPopAttribQSO(void);
 
 (define-constant GLC_QSO_buffer_object                     1)
-(define-constant GLC_BUFFER_OBJECT_COUNT_QSO               0x800E)
-(define-constant GLC_BUFFER_OBJECT_LIST_QSO                0x800F)
+(define-constant GLC_BUFFER_OBJECT_COUNT_QSO               #x800E)
+(define-constant GLC_BUFFER_OBJECT_LIST_QSO                #x800F)
 
 ;; The following entry is a dummy one.
 ;; Replace it for your definitions.

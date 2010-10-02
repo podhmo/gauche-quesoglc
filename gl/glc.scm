@@ -9,7 +9,7 @@
 
 ;; Loads extension
 (dynamic-load "gauche_quesoglc")
-
+     
 ;;
 ;; Put your Scheme definitions here
 ;;

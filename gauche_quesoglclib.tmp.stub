@@ -1,3 +1,12 @@
 ;; GLCAPI void APIENTRY glcContext (GLint inContext);
 ;; GLCAPI void APIENTRY glcAppendCatalog (const GLCchar *inCatalog);
 ;; GLCAPI GLint APIENTRY glcGenContext (void);
+;; GLCAPI GLint APIENTRY glcGenFontID (void);
+;; GLCAPI GLint APIENTRY glcNewFontFromFamily (GLint inFont,
+;; 					    const GLCchar *inFamily);
+;;GLCAPI GLboolean APIENTRY glcFontFace (GLint inFont, const GLCchar *inFace);
+;; GLCAPI void APIENTRY glcFont (GLint inFont);
+;; GLCAPI void APIENTRY glcScale (GLfloat inX, GLfloat inY);
+;; GLCAPI void APIENTRY glcRenderString (const GLCchar *inString);
+;; GLCAPI void APIENTRY glcDisable (GLCenum inAttrib);
+;; GLCAPI void APIENTRY glcEnable (GLCenum inAttrib);
