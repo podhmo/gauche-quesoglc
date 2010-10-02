@@ -10,3 +10,10 @@
 ;; GLCAPI void APIENTRY glcRenderString (const GLCchar *inString);
 ;; GLCAPI void APIENTRY glcDisable (GLCenum inAttrib);
 ;; GLCAPI void APIENTRY glcEnable (GLCenum inAttrib);
+;; GLCAPI const GLCchar* APIENTRY glcGetFontFace (GLint inFont);
+;;GLCAPI GLboolean APIENTRY glcIsContext (GLint inContext);
+;; GLCAPI GLint* APIENTRY glcGetAllContexts (void);
+;; GLCAPI const GLCchar* APIENTRY glcGetFontc (GLint inFont, GLCenum inAttrib);
+;; GLCAPI GLint APIENTRY glcGetFonti (GLint inFont, GLCenum inAttrib);
+;; GLCAPI void APIENTRY glcAppendFont (GLint inFont)
+;; GLCAPI void APIENTRY glcDeleteFont (GLint inFont)

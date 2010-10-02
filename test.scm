@@ -22,6 +22,7 @@
 #?=(glc-new-font-from-family myfont "gsfonts-x11")
 #?=(glc-catalog-list)
 #?=(glc-font-face myfont "bold")
+#?=(glc-get-font-face myfont)
 (glc-font myfont)
 (glc-scale 100 100)
 
