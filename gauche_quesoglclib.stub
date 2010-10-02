@@ -14,35 +14,17 @@
       ,@action
       (result ,start))])
 
-;; (define-cise-stmt RESULT_NEW_LIST
-;;   [(_ "base" i size loop-body)
-;;    `(let* ((__start::ScmObj SCM_NIL)
-;;            (__last::ScmObj SCM_NIL)
-;;            (__size::int ,size))
-;;       (dotimes (,i __size)
-;;         ,loop-body)
-;;       (result __start))]
-;;   [(_ :index i :size size ('let* binding . body))
-;;    `(RESULT_NEW_LIST "base" ,i ,size
-;;                      (let* ,(append binding
-;;                                     `((__e::ScmObj (begin ,@body))))
-;;                        (SCM_APPEND1 __start __last __e)))]
-;;   [(_ :index i :size size element_fun)
-;;    `(RESULT_NEW_LIST "base" ,i ,size
-;;                      (let* ((__e::ScmObj ,element_fun))
-;;                        (SCM_APPEND1 __start __last __e)))])
-
-(define-cise-stmt RESULT_AS_MAYBE
+(define-cise-stmt RESULT-AS-MAYBE
   [(_ val) 
-   `(if (== 1 ,val) (result SCM_UNDEFINED) (result SCM_FALSE))]
-  [(_ bool val) 
-   `(if (== ,bool ,val) (result SCM_UNDEFINED) (result SCM_FALSE))])
+   `(if (== 0 ,val) (result SCM_FALSE) (result SCM_UNDEFINED))]
+  [(_ false val) 
+   `(if (== ,false ,val) (result SCM_FALSE) (result SCM_UNDEFINED))])
 
-(define-cise-stmt RESULT_AS_BOOLEAN
+(define-cise-stmt RESULT-AS-BOOLEAN
   [(_ val) 
-   `(if (== 1 ,val) (result SCM_UNDEFINED) (result SCM_FALSE))]
-  [(_ bool val) 
-   `(if (== ,bool ,val) (result SCM_TRUE) (result SCM_FALSE))])
+   `(if (== 0 ,val) (result SCM_FALSE) (result SCM_TRUE))]
+  [(_ false val) 
+   `(if (== ,false ,val) (result SCM_FALSE) (result SCM_TRUE))])
 
 (define-constant GLC_NONE                                  #x0000)
 
@@ -126,14 +108,14 @@
                         (i::int 0))
                    (for ((= i 0) (!= 0 (aref a i)) (+= i 1))
                         (SCM_APPEND1 start last (SCM_MAKE_INT (aref a i)))))))
-    
+
 ;; GLCAPI GLint APIENTRY glcGetCurrentContext (void);
 ;; GLCAPI GLCenum APIENTRY glcGetError (void);
 ;; (define-cproc glc-get-error () 
 ;;   (result (glcGetError)))
 
 (define-cproc glc-is-context? (inContext::<int>)
-  (RESULT_AS_BOOLEAN GL_TRUE (glcIsContext (cast GLint inContext))))
+  (RESULT-AS-BOOLEAN GL_FALSE (glcIsContext (cast GLint inContext))))
 ;; GLCAPI void APIENTRY glcCallbackFunc (GLCenum inOpcode, GLCfunc inFunc);
 ;; GLCAPI void APIENTRY glcDataPointer (GLvoid *inPointer);
 ;; GLCAPI void APIENTRY glcDeleteGLObjects (void);
@@ -175,7 +157,7 @@
 
 (define-cproc glc-font-face (inFont::<fixnum> inFace::<string>)
   (let* ((cstr::(const GLCchar*) (cast (const GLCchar*) (Scm_GetStringConst inFace))))
-    (RESULT_AS_MAYBE GL_TRUE (glcFontFace inFont cstr))))
+    (RESULT-AS-MAYBE GL_FALSE (glcFontFace inFont cstr))))
 
 
 ;; GLCAPI void APIENTRY glcFontMap (GLint inFont, GLint inCode,
@@ -194,25 +176,22 @@
 ;;                                       (cast GLint inIndex))))
 ;;     (result (SCM_MAKE_STR_COPYING (cast (const char*) r)))))
 
-(define-cproc glc-face-list (inFont::<int>)
-  (WITH-NEW-LIST start last
-                 (dotimes (i (glcGetFonti inFont GLC_FACE_COUNT))
-                   (let* ((r::(const GLCchar*) 
-                              (glcGetFontListc (cast GLint inFont)
-                                               GLC_FACE_LIST
-                                               (cast GLint i)))
-                          (str::ScmObj (SCM_MAKE_STR_COPYING (cast (const char*) r))))
-                     (SCM_APPEND1 start last str)))))
+(define-cise-stmt DEFINE-FONT-LISTC
+  ([_ fonti font-listc]
+   `(WITH-NEW-LIST start last
+                   (dotimes (i (glcGetFonti inFont ,fonti))
+                     (let* ((r::(const GLCchar*) 
+                                (glcGetFontListc (cast GLint inFont)
+                                                 ,font-listc
+                                                 (cast GLint i)))
+                            (str::ScmObj (SCM_MAKE_STR_COPYING (cast (const char*) r))))
+                       (SCM_APPEND1 start last str))))))
 
 (define-cproc glc-char-list (inFont::<int>)
-  (WITH-NEW-LIST start last
-                 (dotimes (i (glcGetFonti inFont GLC_CHAR_COUNT))
-                   (let* ((r::(const GLCchar*) 
-                              (glcGetFontListc (cast GLint inFont)
-                                               GLC_CHAR_LIST
-                                               (cast GLint i)))
-                          (str::ScmObj (SCM_MAKE_STR_COPYING (cast (const char*) r))))
-                     (SCM_APPEND1 start last str)))))
+  (DEFINE-FONT-LISTC GLC_CHAR_COUNT GLC_CHAR_LIST))
+
+(define-cproc glc-face-list (inFont::<int>)
+  (DEFINE-FONT-LISTC  GLC_FACE_COUNT GLC_FACE_LIST))
 
 ;; GLCAPI const GLCchar* APIENTRY glcGetFontListc (GLint inFont,
 ;; 						GLCenum inAttrib,
@@ -235,7 +214,8 @@
 
 (define-cproc glc-new-font-from-family (inFont::<fixnum> inFamily::<string>)
   (let* ((cstr::(const GLCchar*)  (cast (const GLCchar*) (Scm_GetString inFamily))))
-    (RESULT_AS_MAYBE (cast int (glcNewFontFromFamily (cast GLint inFont) cstr)))))
+    (RESULT-AS-MAYBE 0 (glcNewFontFromFamily (cast GLint inFont) cstr))))
+
 
 (define-cproc glc-catalog-list ()
   (WITH-NEW-LIST start last
@@ -245,20 +225,23 @@
                        (SCM_APPEND1 start last 
                                     (Scm_MakeString cstr -1 -1 SCM_STRING_COPYING)))))))
 
-(define-cproc glc-current-font-list ()
-  (WITH-NEW-LIST start last
-                 (let* ((size::int (cast int (glcGeti GLC_CURRENT_FONT_COUNT))))
-                   (dotimes (i size)
-                     (let* ((e::int (glcGetListi GLC_CURRENT_FONT_LIST i)))
-                       (SCM_APPEND1 start last (SCM_MAKE_INT e)))))))
+(define-cise-stmt DEFINE-GET-LISTI
+  ([_ geti get-listi]
+   `(WITH-NEW-LIST start last
+                   (let* ((size::int (cast int (glcGeti ,geti))))
+                     (dotimes (i size)
+                       (let* ((e::int (glcGetListi ,get-listi i)))
+                         (SCM_APPEND1 start last (SCM_MAKE_INT e))))))))
 
-(define-cproc glc-font-list ()
-  (WITH-NEW-LIST start last
-                 (let* ((size::int (cast int (glcGeti GLC_FONT_COUNT))))
-                   (dotimes (i size)
-                     (let* ((e::int (glcGetListi GLC_FONT_LIST i)))
-                       (SCM_APPEND1 start last (SCM_MAKE_INT e)))))))
-  
+(define-cproc  glc-current-font-list ()
+  (DEFINE-GET-LISTI GLC_CURRENT_FONT_COUNT GLC_CURRENT_FONT_LIST))
+(define-cproc  glc-font-list ()
+  (DEFINE-GET-LISTI GLC_FONT_COUNT GLC_FONT_LIST))
+(define-cproc glc-list-object-list ()
+  (DEFINE-GET-LISTI GLC_LIST_OBJECT_COUNT GLC_LIST_OBJECT_LIST))
+(define-cproc glc-texture-object-list ()
+  (DEFINE-GET-LISTI GLC_TEXTURE_OBJECT_COUNT GLC_TEXTURE_OBJECT_LIST))
+
 ;; GLCAPI GLint APIENTRY glcNewFontFromMaster (GLint inFont, GLint inMaster);
 
 ;; GLCAPI void APIENTRY glcLoadIdentity (void);
