@@ -17,3 +17,10 @@
 ;; GLCAPI GLint APIENTRY glcGetFonti (GLint inFont, GLCenum inAttrib);
 ;; GLCAPI void APIENTRY glcAppendFont (GLint inFont)
 ;; GLCAPI void APIENTRY glcDeleteFont (GLint inFont)
+;; GLCAPI void APIENTRY glcDeleteContext (GLint inContext);
+;; GLCAPI GLint APIENTRY glcGetCurrentContext (void);
+;; GLCAPI void APIENTRY glcStringType (GLCenum inStringType);
+;; GLCAPI const GLCchar* APIENTRY glcGetFontListc (GLint inFont,
+;; 						GLCenum inAttrib,
+;; 						GLint inIndex);
+;; GLCAPI GLboolean APIENTRY glcIsFont (GLint inFont);
