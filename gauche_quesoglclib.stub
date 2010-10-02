@@ -116,8 +116,16 @@
   (result (SCM_MAKE_INT (glcGetCurrentContext))))
 
 ;; GLCAPI GLCenum APIENTRY glcGetError (void);
-;; (define-cproc glc-get-error () 
-;;   (result (glcGetError)))
+(define-cfn make_symbol (cstr::(const char*))
+  (return (Scm_MakeSymbol (SCM_STRING (SCM_MAKE_STR_IMMUTABLE cstr)) TRUE)))
+
+(define-cproc glc-get-error () 
+  (let* ((r::GLCenum  (glcGetError)))
+    (cond ((== GLC_NONE r) (result (make_symbol "none")))
+          ((== GLC_PARAMETER_ERROR r) (result (make_symbol "paramater-error")))
+          ((== GLC_RESOURCE_ERROR r) (result (make_symbol "resource-error")))
+          ((== GLC_STATE_ERROR r) (result (make_symbol "state-error")))
+          (else (result SCM_FALSE)))))
 
 (define-cproc glc-is-context? (inContext::<int>)
   (RESULT-AS-BOOLEAN GL_FALSE (glcIsContext (cast GLint inContext))))
