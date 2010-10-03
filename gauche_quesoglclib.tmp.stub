@@ -24,3 +24,13 @@
 ;; 						GLCenum inAttrib,
 ;; 						GLint inIndex);
 ;; GLCAPI GLboolean APIENTRY glcIsFont (GLint inFont);
+;; GLCAPI GLint APIENTRY glcMeasureString (GLboolean inMeasureChars,
+;; 					const GLCchar *inString);
+  
+;; GLCAPI GLfloat* APIENTRY glcGetCharMetric (GLint inCode, GLCenum inMetric,
+;; 					   GLfloat *outVec);
+;; GLCAPI GLfloat* APIENTRY glcGetMaxCharMetric (GLCenum inMetric,
+;; 					      GLfloat *outVec);
+;; GLCAPI GLfloat* APIENTRY glcGetStringCharMetric (GLint inIndex,
+;; 						 GLCenum inMetric,
+;; 						 GLfloat *outVec);

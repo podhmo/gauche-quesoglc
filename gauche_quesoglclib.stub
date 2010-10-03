@@ -144,6 +144,10 @@
 ;; GLCAPI GLfloat APIENTRY glcGetf (GLCenum inAttrib);
 ;; GLCAPI GLfloat* APIENTRY glcGetfv (GLCenum inAttrib, GLfloat *outVec);
 ;; GLCAPI GLint APIENTRY glcGeti (GLCenum inAttrib);
+
+(define-cproc glc-is-enabled? (inAttrib::<int>)
+  (RESULT-AS-BOOLEAN GL_FALSE (glcIsEnabled (cast GLCenum inAttrib))))
+  
 ;; GLCAPI GLboolean APIENTRY glcIsEnabled (GLCenum inAttrib);
 
 (define-cproc glc-string-type (inStringType::<int>) ::<void>
@@ -250,6 +254,8 @@
 ;; GLCAPI GLint APIENTRY glcNewFontFromMaster (GLint inFont, GLint inMaster);
 
 ;; GLCAPI void APIENTRY glcLoadIdentity (void);
+(define-cproc glc-load-identity () ::<void>
+  (glcLoadIdentity))
 ;; GLCAPI void APIENTRY glcLoadMatrix (const GLfloat *inMatrix);
 ;; GLCAPI void APIENTRY glcMultMatrix (const GLfloat *inMatrix);
 ;; GLCAPI void APIENTRY glcRotate (GLfloat inAngle);
@@ -269,20 +275,37 @@
   
 ;; GLCAPI void APIENTRY glcReplacementCode (GLint inCode);
 ;; GLCAPI void APIENTRY glcResolution (GLfloat inVal);
+(define-type <f32vector> "ScmF32Vector*")
+(define-cproc glc-get-char-metric! (inCode::<int> inMetric::<int> outVec::<f32vector>) ::<f32vector>
+  (glcGetCharMetric (cast GLint inCode) (cast GLCenum inMetric)
+                    (cast GLfloat* (SCM_F32VECTOR_ELEMENTS outVec)))
+  (result outVec))
 
-;; GLCAPI GLfloat* APIENTRY glcGetCharMetric (GLint inCode, GLCenum inMetric,
-;; 					   GLfloat *outVec);
-;; GLCAPI GLfloat* APIENTRY glcGetMaxCharMetric (GLCenum inMetric,
-;; 					      GLfloat *outVec);
-;; GLCAPI GLfloat* APIENTRY glcGetStringCharMetric (GLint inIndex,
-;; 						 GLCenum inMetric,
-;; 						 GLfloat *outVec);
+(define-cproc glc-get-max-char-metric! (inMetric::<int> outVec::<f32vector>) ::<f32vector>
+  (glcGetMaxCharMetric (cast GLCenum inMetric)
+                       (cast GLfloat* (SCM_F32VECTOR_ELEMENTS outVec)))
+  (result outVec))
+
+(define-cproc glc-get-string-char-metric! (inIndex::<int> inMetric::<int> outVec::<f32vector>) ::<f32vector>
+  (glcGetStringCharMetric (cast GLint inIndex) (cast GLCenum inMetric)
+                    (cast GLfloat* (SCM_F32VECTOR_ELEMENTS outVec)))
+  (result outVec))
+
+(define-cproc glc-get-string-metric! (inMetric::<int> outVec::<f32vector>) ::<f32vector>
+  ;;castが面倒になった
+  (glcGetStringMetric inMetric (SCM_F32VECTOR_ELEMENTS outVec))
+  (result outVec))
 ;; GLCAPI GLfloat* APIENTRY glcGetStringMetric (GLCenum inMetric, GLfloat *outVec);
+
 ;; GLCAPI GLint APIENTRY glcMeasureCountedString (GLboolean inMeasureChars,
 ;; 					       GLint inCount,
 ;; 					       const GLCchar *inString);
-;; GLCAPI GLint APIENTRY glcMeasureString (GLboolean inMeasureChars,
-;; 					const GLCchar *inString);
+
+(define-cproc glc-measure-string (inMeasureChars::<int>  inString::<string>)
+  (RESULT-AS-MAYBE
+   (glcMeasureString (cast GLboolean inMeasureChars)
+                     (cast (const GLCchar*) (Scm_GetStringConst inString)))))
+
 
 ;; /*************************************************************/
 
