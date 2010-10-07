@@ -34,3 +34,5 @@
 ;; GLCAPI GLfloat* APIENTRY glcGetStringCharMetric (GLint inIndex,
 ;; 						 GLCenum inMetric,
 ;; 						 GLfloat *outVec);
+;; GLCAPI void APIENTRY glcRotate (GLfloat inAngle);
+;; GLCAPI void APIENTRY glcMultMatrix (const GLfloat *inMatrix);

@@ -7,6 +7,8 @@
 #include <GL/glc.h>
 "
 
+(define-type <f32vector> "ScmF32Vector*")
+
 (define-cise-stmt WITH-NEW-LIST
   [(_ start last . action)
    `(let* ((,start :: ScmObj SCM_NIL)
@@ -257,8 +259,12 @@
 (define-cproc glc-load-identity () ::<void>
   (glcLoadIdentity))
 ;; GLCAPI void APIENTRY glcLoadMatrix (const GLfloat *inMatrix);
-;; GLCAPI void APIENTRY glcMultMatrix (const GLfloat *inMatrix);
-;; GLCAPI void APIENTRY glcRotate (GLfloat inAngle);
+
+(define-cproc glc-mult-matrix (inMatrix::<f32vector>)
+  (glcMultMatrix (cast GLfloat* (SCM_F32VECTOR_ELEMENTS inMatrix))))
+(define-cproc glc-rotate (inAngle::<float>) ::<void>
+  (glcRotate (cast GLfloat inAngle)))
+
 
 (define-cproc glc-scale (inX::<float> inY::<float>) ::<void>
   (glcScale (cast GLfloat inX) (cast GLfloat inY)))
@@ -275,7 +281,7 @@
   
 ;; GLCAPI void APIENTRY glcReplacementCode (GLint inCode);
 ;; GLCAPI void APIENTRY glcResolution (GLfloat inVal);
-(define-type <f32vector> "ScmF32Vector*")
+
 (define-cproc glc-get-char-metric! (inCode::<int> inMetric::<int> outVec::<f32vector>) ::<f32vector>
   (glcGetCharMetric (cast GLint inCode) (cast GLCenum inMetric)
                     (cast GLfloat* (SCM_F32VECTOR_ELEMENTS outVec)))
