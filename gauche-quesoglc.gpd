@@ -2,7 +2,7 @@
 ;; Gauche Package Description
 
 (define-gauche-package "gauche-quesoglc"
-  :version "1.0"
+  :version "0.0.2"
   :gauche-version "0.9"
   :configure "./configure "
 )
