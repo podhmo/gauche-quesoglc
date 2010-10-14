@@ -48,7 +48,7 @@ all : $(TARGET)
 
 gauche_quesoglc.$(SOEXT): $(gauche_quesoglc_SRCS)
 	$(GAUCHE_PACKAGE) compile \
-	  --libs="-lGL -lGLU -lGLC" \
+	  --libs="`pkg-config --libs quesoglc`" --cflags="`pkg-config --cflags quesoglc`" \
 	  --local=$(LOCAL_PATHS) --verbose gauche_quesoglc $(gauche_quesoglc_SRCS)
 
 check : all

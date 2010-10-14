@@ -19,7 +19,7 @@
 (glc-append-catalog "/etc/X11/fonts/Type1/")
 (glc-append-catalog "/usr/share/fonts/X11/Type1/")
 (define myfont (glc-gen-font-id))
-#?=(glc-new-font-from-family myfont "gsfonts-x11")
+#?=(glc-new-font-from-family myfont "Utopia")
 #?=(glc-catalog-list)
 #?=(glc-font-face myfont "bold")
 #?=(glc-get-font-face myfont)
